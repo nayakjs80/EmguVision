@@ -435,7 +435,7 @@ namespace EmguCV
         // func 의 source image 를 내가 원하는 이미지로 바꿀수 있으면 좋겠다..
         public Mat m_SourceImage = null;
 
-        public EmguVision_Result Result = new EmguVision_Result();
+        public EmguVision_Result Result = new EmguVision_Result(nameof(EmguVisionFunc));
 
         //ParamForm param = null;
 
@@ -653,20 +653,19 @@ namespace EmguCV
     }
     public class EmguVision_Result
     {
-        public EmguVision_Result()
+        public EmguVision_Result(string sName)
         {
             m_ProcessingImage = new Mat();
-            //sProcessingName = sName;
+            sProcessingName = sName;
 
             sResult_Json = "";
         }
 
         public bool m_bIsOK = false;
+        public string sProcessingName;
         public Mat m_ProcessingImage;
 
         public string sResult_Json;
-
-        //public EmguVisionFunc ProcessingFunc;
     }
 
 

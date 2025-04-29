@@ -48,6 +48,7 @@
             btn_Reset = new Button();
             btn_DetectBlob = new Button();
             tbProcessingResult = new TextBox();
+            btn_SearchEdgeCircle = new Button();
             ((System.ComponentModel.ISupportInitialize)pb_DrawImage).BeginInit();
             ((System.ComponentModel.ISupportInitialize)ProcessingList).BeginInit();
             SuspendLayout();
@@ -229,11 +230,22 @@
             tbProcessingResult.Size = new Size(232, 277);
             tbProcessingResult.TabIndex = 17;
             // 
+            // btn_SearchEdgeCircle
+            // 
+            btn_SearchEdgeCircle.Location = new Point(288, 538);
+            btn_SearchEdgeCircle.Name = "btn_SearchEdgeCircle";
+            btn_SearchEdgeCircle.Size = new Size(113, 72);
+            btn_SearchEdgeCircle.TabIndex = 18;
+            btn_SearchEdgeCircle.Text = "EmguCVSearchEdgeCircle";
+            btn_SearchEdgeCircle.UseVisualStyleBackColor = true;
+            btn_SearchEdgeCircle.Click += btn_Processing_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1670, 719);
+            Controls.Add(btn_SearchEdgeCircle);
             Controls.Add(tbProcessingResult);
             Controls.Add(btn_DetectBlob);
             Controls.Add(btn_Reset);
@@ -279,5 +291,6 @@
         private TextBox tbProcessingResult;
         private DataGridViewTextBoxColumn Processing;
         private DataGridViewButtonColumn Execute;
+        private Button btn_SearchEdgeCircle;
     }
 }

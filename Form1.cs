@@ -11,6 +11,7 @@ using System.Net.Http.Json;
 
 using Newtonsoft.Json;
 using static Emgu.CV.Dai.OpenVino;
+using LaserWaterJet.Vision_EmguCV;
 
 namespace EmguCV
 {
@@ -546,6 +547,13 @@ namespace EmguCV
                 detectCircle.Execute(FuncProcessing_all[nImageIndex].Result.m_ProcessingImage);
 
                 FuncProcessing_all.Add(detectCircle);
+            }
+            else if (sender == btn_SearchEdgeCircle)
+            {
+                EmguCVSearchEdgeCircle searchEdgeCircle = new EmguCVSearchEdgeCircle();
+                searchEdgeCircle.Execute(FuncProcessing_all[nImageIndex].Result.m_ProcessingImage);
+
+                FuncProcessing_all.Add(searchEdgeCircle);
             }
         }
 
