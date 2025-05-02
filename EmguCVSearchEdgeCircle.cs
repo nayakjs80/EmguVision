@@ -16,6 +16,8 @@ namespace LaserWaterJet.Vision_EmguCV
 {
     public class EmguCVSearchEdgeCircle : EmguVisionFunc
     {
+        int nExecuteIndex = 0;
+
         public EmguCVSearchEdgeCircle()
         {
             // 중심점 설정
@@ -136,7 +138,7 @@ namespace LaserWaterJet.Vision_EmguCV
                     }
 
                     // Threshold를 초과하면 경계선으로 간주
-                    if (pixelValue > threshold)
+                    if (pixelValue < threshold)
                     {
                         edgePoints.Add(new Point(x, y));
 
@@ -147,12 +149,22 @@ namespace LaserWaterJet.Vision_EmguCV
                 }
 
                 // 선 그리기
-                CvInvoke.Line(outputImage, center, ptEnd, new MCvScalar(0, 255, 0), 5); // 녹색 선, 두께 2
+                CvInvoke.Line(outputImage, center, ptEnd, new MCvScalar(255, 0, 0), 2); // 녹색 선, 두께 2
             }
-
 
             Result.m_ProcessingImage = outputImage.Clone();
             Result.m_bIsOK = true;
+
+            string sFolderPath = $"D:\\ResultImage\\CVSearchEdgeCircle\\_{DateTime.Now.ToString("yyyyMMddHHmm")}";
+            if (false == Directory.Exists(sFolderPath))
+            {
+                Directory.CreateDirectory(sFolderPath);
+            }
+
+            string sOutputFilePath = $"{sFolderPath}\\SearchEdge_{nExecuteIndex}.bmp";
+            CvInvoke.Imwrite(sOutputFilePath, outputImage);
+            nExecuteIndex++;
+
 
             // 결과를 배열로 저장
             Ret.sResult_Json = Newtonsoft.Json.JsonConvert.SerializeObject(edgePoints, Newtonsoft.Json.Formatting.Indented);

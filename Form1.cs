@@ -605,7 +605,7 @@ namespace EmguCV
 
             if (nSelIndex >= FuncProcessing_all.Count) return;
 
-            DrawImage(FuncProcessing_all[nSelIndex].Result.m_ProcessingImage, pb_DrawImage);
+            //DrawImage(FuncProcessing_all[nSelIndex].Result.m_ProcessingImage, pb_DrawImage);
 
             if (1 == nSelIndex_Col)
             {
@@ -669,7 +669,9 @@ namespace EmguCV
                 #endregion ori Code .. 
             }
 
-            DrawImage(FuncProcessing_all[nSelIndex].Result.m_ProcessingImage, pb_DrawImage);
+            //DrawImage(FuncProcessing_all[nSelIndex].Result.m_ProcessingImage, pb_DrawImage);
+
+            pb_DrawImage.Invalidate();
 
             //switch (nSelIndex)
             //{
@@ -748,6 +750,41 @@ namespace EmguCV
             FuncProcessing_all[nSelectRow].ShowParamForm();
             //ResultProcessing_all[nSelectRow].ProcessingFunc.ShowParamForm();
 
+        }
+
+        private void pb_DrawImage_Paint(object sender, PaintEventArgs e)
+        {
+            try
+            {
+                Mat DisplayImage = FuncProcessing_all[nSelIndex].Result.m_ProcessingImage;
+                int nImageWidth = FuncProcessing_all[nSelIndex].Result.m_ProcessingImage.Width;
+                int nImageHeight = FuncProcessing_all[nSelIndex].Result.m_ProcessingImage.Height;
+
+                if (null != DisplayImage)
+                {
+                    Bitmap TempImage = new Bitmap(nImageWidth, nImageHeight, nImageWidth, PixelFormat.Format8bppIndexed, DisplayImage.DataPointer);
+                    ColorPalette palette = TempImage.Palette;
+
+                    // Grayscale 팔레트를 설정합니다.
+                    for (int i = 0; i < 256; i++)
+                    {
+                        palette.Entries[i] = Color.FromArgb(i, i, i);
+                    }
+
+                    TempImage.Palette = palette;
+
+                    //Bitmap TempImage = new Bitmap(nImageWidth, nImageHeight, nImageWidth, PixelFormat.Format8bppIndexed, DisplayImage.DataPointer);
+                    //TempImage.Palette = m_pMainControlStn.SynovaCamera.GetBitmap_Palette_Y8();
+
+                    //Rectangle Temp = new Rectangle(0, 0, nImageWidth, nImageHeight);
+                    Rectangle Temp = new Rectangle(0, 0, ((PictureBox)sender).Width, ((PictureBox)sender).Height);
+                    e.Graphics.DrawImage(TempImage, Temp);
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
         }
     }
 
