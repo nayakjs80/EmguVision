@@ -551,6 +551,8 @@ namespace EmguCV
             else if (sender == btn_SearchEdgeCircle)
             {
                 EmguCVSearchEdgeCircle searchEdgeCircle = new EmguCVSearchEdgeCircle();
+                //searchEdgeCircle.
+
                 searchEdgeCircle.Execute(FuncProcessing_all[nImageIndex].Result.m_ProcessingImage);
 
                 FuncProcessing_all.Add(searchEdgeCircle);
@@ -610,7 +612,7 @@ namespace EmguCV
                 FuncProcessing_all[nSelIndex].Execute(FuncProcessing_all[(nSelIndex - 1)].Result.m_ProcessingImage);
 
                 #region ori Code .. 
-                
+
                 ////int nImageIndex = ResultProcessing_all.Count - 1;
                 //if (nameof(EmguVisionBinary) == ResultProcessing_all[nSelIndex].sProcessingName)
                 //{
@@ -745,7 +747,7 @@ namespace EmguCV
 
             FuncProcessing_all[nSelectRow].ShowParamForm();
             //ResultProcessing_all[nSelectRow].ProcessingFunc.ShowParamForm();
-            
+
         }
     }
 

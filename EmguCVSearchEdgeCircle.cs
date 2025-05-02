@@ -60,14 +60,22 @@ namespace LaserWaterJet.Vision_EmguCV
             EmguVisionParamter paramThreshold = new EmguVisionParamter
             {
                 sName = "Threshold",
-                sValue = "128" // 기본값
+                sValue = "30" // 기본값
             };
             listParameters.Add(paramThreshold);
         }
 
-        new public EmguVision_Result Execute(Mat SourceImg)
+        override public string GetName()
+        {
+            return nameof(EmguCVSearchEdgeCircle);
+        }
+
+        override public bool Execute(Mat SourceImg)
         {
             EmguVision_Result Ret = new EmguVision_Result(nameof(EmguCVSearchEdgeCircle));
+
+            m_SourceImage = SourceImg.Clone();
+            Mat outputImage = SourceImg.Clone();
 
             // 파라미터 값 가져오기
             if (!int.TryParse(listParameters[0].sValue, out int centerX)) centerX = 0;
@@ -103,13 +111,13 @@ namespace LaserWaterJet.Vision_EmguCV
                 Point ptEnd = new Point(0, 0);
 
                 // 선을 따라가며 경계선 점 탐지
-                for (int r = 0; r < Math.Max(SourceImg.Width, SourceImg.Height); r++)
+                for (int r = 0; r < Math.Max(outputImage.Width, outputImage.Height); r++)
                 {
                     int x = (int)(center.X + r * dx);
                     int y = (int)(center.Y + r * dy);
 
                     // 이미지 범위를 벗어나면 중단
-                    if (x < 0 || y < 0 || x >= SourceImg.Width || y >= SourceImg.Height)
+                    if (x < 0 || y < 0 || x >= outputImage.Width || y >= outputImage.Height)
                     {
                         ptEnd.X = x;
                         ptEnd.Y = y;
@@ -122,8 +130,8 @@ namespace LaserWaterJet.Vision_EmguCV
                     byte pixelValue = 0x00;
                     unsafe
                     {
-                        byte* data = (byte*)SourceImg.DataPointer;
-                        int stride = SourceImg.Width; // 한 행의 바이트 수
+                        byte* data = (byte*)outputImage.DataPointer;
+                        int stride = outputImage.Width; // 한 행의 바이트 수
                         pixelValue = data[y * stride + x]; // (x, y) 위치의 픽셀 값
                     }
 
@@ -139,17 +147,18 @@ namespace LaserWaterJet.Vision_EmguCV
                 }
 
                 // 선 그리기
-                CvInvoke.Line(SourceImg, center, ptEnd, new MCvScalar(0, 255, 0), 2); // 녹색 선, 두께 2
+                CvInvoke.Line(outputImage, center, ptEnd, new MCvScalar(0, 255, 0), 5); // 녹색 선, 두께 2
             }
 
 
-            Result.m_ProcessingImage = SourceImg.Clone();
+            Result.m_ProcessingImage = outputImage.Clone();
+            Result.m_bIsOK = true;
 
             // 결과를 배열로 저장
             Ret.sResult_Json = Newtonsoft.Json.JsonConvert.SerializeObject(edgePoints, Newtonsoft.Json.Formatting.Indented);
             Ret.m_bIsOK = true;
 
-            return Ret;
+            return true;
         }
     }
 }
