@@ -19,6 +19,30 @@ namespace EmguCV
     {
         const int nMaxProcessing = 10;
 
+        const double dMaxImageScale = 10.0;
+        const double dMinImageScale = 1.0;
+
+        double m_dDrawScale = 1.0;
+        int m_nCtrlBasePosX = 0;
+        int m_nCtrlBasePosY = 0;
+
+        int m_nDisTempPosX = 0;
+        int m_nDisTempPosY = 0;
+
+        int m_nDisStartPosX = 0;
+        int m_nDisStartPosY = 0;
+        int m_nDisWidth = 0;
+        int m_nDisHeight = 0;
+
+        int m_nDisCtrlWidth = 0;
+        int m_nDisCtrlHeight = 0;
+
+        double m_dDisScaleX = 1.0;
+        double m_dDisScaleY = 1.0;
+
+        int m_nPickStartPosX = 0;
+        int m_nPickStartPosY = 0;
+
         int nIndex_RetProcessing = 0;
         //Result_Processing[] ResultProcessing_all = new Result_Processing[nMaxProcessing];
         //List<Result_Processing> ResultProcessing_all = new List<Result_Processing>();
@@ -32,6 +56,12 @@ namespace EmguCV
             InitializeComponent();
 
             ProcessingList.Rows.Add(nMaxProcessing);
+
+            m_nDisCtrlWidth = pb_DrawImage.Width;
+            m_nDisCtrlHeight = pb_DrawImage.Height;
+
+            pb_DrawImage.MouseWheel += pb_DrawImage_MouseWheel;
+            pb_DrawImage.MouseMove += pb_DrawImage_MouseEvent;
 
             tmUpdate.Interval = 500;
             tmUpdate.Start();
@@ -100,11 +130,17 @@ namespace EmguCV
 
             try
             {
-
                 LoadImage.Execute(CvInvoke.Imread(filePath, Emgu.CV.CvEnum.ImreadModes.Grayscale));
 
                 FuncProcessing_all.Add(LoadImage);
 
+                m_nDisStartPosX = 1;
+                m_nDisStartPosY = 1;
+                m_nDisWidth = LoadImage.Result.m_ProcessingImage.Width;
+                m_nDisHeight = LoadImage.Result.m_ProcessingImage.Height;
+
+                m_dDisScaleX = m_nDisWidth / (double)m_nDisCtrlWidth;
+                m_dDisScaleY = m_nDisHeight / (double)m_nDisCtrlHeight;
             }
             catch (Exception ex)
             {
@@ -752,7 +788,7 @@ namespace EmguCV
 
         }
 
-        private void pb_DrawImage_Paint(object sender, PaintEventArgs e)
+        private void ShowImage(int nBasePointX, int nBasePointY, int nCtrlWidth, int nCtrlHeight, PaintEventArgs e)
         {
             try
             {
@@ -777,8 +813,183 @@ namespace EmguCV
                     //TempImage.Palette = m_pMainControlStn.SynovaCamera.GetBitmap_Palette_Y8();
 
                     //Rectangle Temp = new Rectangle(0, 0, nImageWidth, nImageHeight);
-                    Rectangle Temp = new Rectangle(0, 0, ((PictureBox)sender).Width, ((PictureBox)sender).Height);
+                    Rectangle Temp = new Rectangle(0, 0, nCtrlWidth, nCtrlHeight);
                     e.Graphics.DrawImage(TempImage, Temp);
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        double dSelectPosX = 0;
+        double dSelectPosY = 0;
+        bool m_bImageMove = false;
+
+        private void pb_DrawImage_MouseDown(object sender, MouseEventArgs e)
+        {
+            m_bImageMove = true;
+
+            //m_nDisStartPosX = (int)(e.X / m_dDrawScale);
+            //m_nDisStartPosY = (int)(e.Y / m_dDrawScale);
+
+            //m_nDisStartPosX = (int)((e.X * m_dDisScaleX) / m_dDrawScale);
+            //m_nDisStartPosY = (int)((e.Y * m_dDisScaleY) / m_dDrawScale);
+
+            m_nPickStartPosX = (int)((e.X * m_dDisScaleX) / m_dDrawScale);
+            m_nPickStartPosY = (int)((e.Y * m_dDisScaleY) / m_dDrawScale);
+            //m_nPickStartPosX = e.X;
+            //m_nPickStartPosY = e.Y;
+
+            m_nDisTempPosX = m_nDisStartPosX;
+            m_nDisTempPosY = m_nDisStartPosY;
+        }
+
+        private void pb_DrawImage_MouseEvent(object sender, MouseEventArgs e)
+        {
+            if(true == m_bImageMove)
+            {
+                int nPickCurPosX = (int)((e.X * m_dDisScaleX) / m_dDrawScale);
+                int nPickCurPosY = (int)((e.Y * m_dDisScaleY) / m_dDrawScale);
+                //int nPickCurPosX = e.X;
+                //int nPickCurPosY = e.Y;
+
+                m_nDisStartPosX = m_nDisTempPosX - (nPickCurPosX - m_nPickStartPosX);
+                m_nDisStartPosY = m_nDisTempPosY - (nPickCurPosY - m_nPickStartPosY);
+
+                pb_DrawImage.Invalidate();
+            }
+        }
+
+        private void pb_DrawImage_MouseUp(object sender, MouseEventArgs e)
+        {
+            m_bImageMove = false;
+
+            int nPickEndPosX = (int)((e.X * m_dDisScaleX) / m_dDrawScale);
+            int nPickEndPosY = (int)((e.Y * m_dDisScaleY) / m_dDrawScale);
+
+            m_nDisStartPosX = m_nDisTempPosX - (nPickEndPosX - m_nPickStartPosX);
+            m_nDisStartPosY = m_nDisTempPosY - (nPickEndPosY - m_nPickStartPosY);
+
+            m_nDisTempPosX = 0;
+            m_nDisTempPosY = 0;
+
+            pb_DrawImage.Invalidate();
+        }
+
+        private void pb_DrawImage_MouseWheel(object sender, MouseEventArgs e)
+        {
+            m_nCtrlBasePosX = e.X;
+            m_nCtrlBasePosY = e.Y;
+
+            //dSelectPosX = m_nDisStartPosX + (e.X * m_dDisScaleX);
+            //dSelectPosY = m_nDisStartPosY + (e.Y * m_dDisScaleY);
+
+            //m_nDisStartPosX = e.X;
+            //m_nDisStartPosY = e.Y;
+
+            int nPickPosX = (int)((e.X * m_dDisScaleX) / m_dDrawScale);
+            int nPickPosY = (int)((e.Y * m_dDisScaleY) / m_dDrawScale);
+
+
+            double dMoveImageDisX = (m_nDisWidth * 0.1) / 2;
+            double dMoveImageDisY = (m_nDisHeight * 0.1) / 2;
+
+            if (e.Delta > 0)
+            {
+                // 휠을 위로 스크롤
+                m_dDrawScale = Math.Min(dMaxImageScale, m_dDrawScale + 0.1); // 최대 스케일 제한
+                //m_dDisScaleY = Math.Min(5.0, m_dDisScaleY + 0.1); // 최대 스케일 제한
+                //m_dDrawScale += 0.1;
+
+                //m_nDisStartPosX += (int)dMoveImageDisX;
+                //m_nDisStartPosY += (int)dMoveImageDisY;
+            }
+            else
+            {
+                // 휠을 아래로 스크롤
+                //m_dDrawScale = Math.Max(1.0, m_dDrawScale - 0.1); // 최소 스케일 제한
+                m_dDrawScale = Math.Max(dMinImageScale, m_dDrawScale - 0.1); // 최소 스케일 제한
+                                                                             //m_dDisScaleY = Math.Max(1.0, m_dDisScaleY - 0.1); // 최소 스케일 제한
+
+                //m_nDisStartPosX -= (int)dMoveImageDisX;
+                //m_nDisStartPosY -= (int)dMoveImageDisY;
+            }
+
+            int nPickChangePosX = (int)((e.X * m_dDisScaleX) / m_dDrawScale);
+            int nPickChangePosY = (int)((e.Y * m_dDisScaleY) / m_dDrawScale);
+
+
+            m_nDisStartPosX += (nPickPosX - nPickChangePosX);
+            m_nDisStartPosY += (nPickPosY - nPickChangePosY);
+
+            //m_nDisStartPosX = (int)(m_nDisCtrlWidth * (m_dDisScaleX - 1));
+            //m_nDisStartPosY = (int)(m_nDisCtrlHeight * (m_dDisScaleY - 1));
+
+            // 이미지 다시 그리기
+            pb_DrawImage.Invalidate();
+        }
+
+        Rectangle GetDisRect()
+        {
+            Rectangle rectRet = new Rectangle(m_nDisStartPosX, m_nDisStartPosY, m_nDisWidth, m_nDisHeight);
+
+            //double dMoveImageDisX = ((m_nDisWidth - (m_nDisWidth / m_dDrawScale)) / m_dDisScaleX) / 2;
+            //double dMoveImageDisY = ((m_nDisHeight - (m_nDisHeight / m_dDrawScale)) / m_dDisScaleY) / 2;
+
+            double dMoveImageDisX = ((m_nDisWidth - (m_nDisWidth / m_dDisScaleX)) / m_dDrawScale) / 2;
+            double dMoveImageDisY = ((m_nDisHeight - (m_nDisHeight / m_dDisScaleY)) / m_dDrawScale) / 2;
+
+            rectRet.X = m_nDisStartPosX;
+            rectRet.Y = m_nDisStartPosY;
+
+            //rectRet.X = m_nDisStartPosX - (int)dMoveImageDisX;
+            //rectRet.Y = m_nDisStartPosY - (int)dMoveImageDisY;
+
+            rectRet.Width = (int)((m_nDisWidth / m_dDrawScale));
+            rectRet.Height = (int)((m_nDisHeight / m_dDrawScale));
+
+            return rectRet;
+        }
+
+        private void pb_DrawImage_Paint(object sender, PaintEventArgs e)
+        {
+            try
+            {
+                Mat DisplayImage = FuncProcessing_all[nSelIndex].Result.m_ProcessingImage;
+
+                int nImageWidth = FuncProcessing_all[nSelIndex].Result.m_ProcessingImage.Width;
+                int nImageHeight = FuncProcessing_all[nSelIndex].Result.m_ProcessingImage.Height;
+
+                //int nCtrlWidth = (int)(((PictureBox)sender).Width * m_dDrawScale);
+                //int nCtrlHeight = (int)(((PictureBox)sender).Height * m_dDrawScale);
+                //int nCtrlWidth = ((PictureBox)sender).Width;
+                //int nCtrlHeight = ((PictureBox)sender).Height;
+
+                if (null != DisplayImage)
+                {
+                    Bitmap TempImage = new Bitmap(nImageWidth, nImageHeight, DisplayImage.Step, PixelFormat.Format8bppIndexed, DisplayImage.DataPointer);
+                    ColorPalette palette = TempImage.Palette;
+
+                    // Grayscale 팔레트를 설정합니다.
+                    for (int i = 0; i < 256; i++)
+                    {
+                        palette.Entries[i] = Color.FromArgb(i, i, i);
+                    }
+
+                    TempImage.Palette = palette;
+
+                    //Rectangle Temp = new Rectangle(0, 0, nImageWidth, nImageHeight);
+                    //Rectangle rectSrc = new Rectangle(m_nCtrlBasePosX, m_nCtrlBasePosY, nImageWidth, nImageHeight);
+                    //Rectangle rectSrc = new Rectangle(m_nDisStartPosX, m_nDisStartPosY, m_nDisWidth, m_nDisHeight);
+                    Rectangle rectSrc = GetDisRect();
+                    Rectangle rectDest = new Rectangle(0, 0, m_nDisCtrlWidth, m_nDisCtrlHeight);
+                    //e.Graphics.DrawImage(TempImage, Temp);
+                    e.Graphics.DrawImage(TempImage, rectDest, rectSrc, GraphicsUnit.Pixel);
+
+
+                    //e.Graphics.DrawString()
                 }
             }
             catch (Exception ex)
