@@ -670,6 +670,9 @@ namespace EmguCV
 
 
 
+
+
+
     public class ParamForm : Form
     {
         public delegate void FormClose();

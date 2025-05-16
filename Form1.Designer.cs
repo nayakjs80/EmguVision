@@ -71,9 +71,6 @@
             pb_DrawImage.SizeMode = PictureBoxSizeMode.CenterImage;
             pb_DrawImage.TabIndex = 1;
             pb_DrawImage.TabStop = false;
-            pb_DrawImage.Paint += pb_DrawImage_Paint;
-            pb_DrawImage.MouseDown += pb_DrawImage_MouseDown;
-            pb_DrawImage.MouseUp += pb_DrawImage_MouseUp;
             // 
             // btn_SimpleBlob
             // 
